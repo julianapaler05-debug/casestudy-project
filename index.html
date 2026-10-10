@@ -1,0 +1,353 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J's Hideout Menu Management</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f3f5;
+        }
+
+        header {
+            background: #101b20;
+            color: white;
+            padding: 20px;
+        }
+
+        header h2 {
+            color: #f5a623;
+        }
+
+        .container {
+            display: flex;
+            min-height: 90vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #101b20;
+            padding: 20px 10px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 13px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #d92732;
+        }
+
+        main {
+            flex: 1;
+            padding: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 9px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .add-btn {
+            background: #159957;
+        }
+
+        .edit-btn {
+            background: #087be8;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #e9ecef;
+        }
+
+        .available {
+            color: green;
+            font-weight: bold;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            main {
+                padding: 12px;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🔥 J's Hideout</h2>
+    <p>GRILL & RESTAURANT — Menu Management System</p>
+</header>
+
+<div class="container">
+
+    <nav class="sidebar">
+        <a href="#menu" class="active">☰ View Menu</a>
+        <a href="#add">＋ Add Product</a>
+        <a href="#menu">✎ Edit Product</a>
+        <a href="#menu">▣ Delete Product</a>
+        <a href="#search">⌕ Search / Filter</a>
+        <a href="#">⇥ Logout</a>
+    </nav>
+
+    <main>
+
+        <section class="card" id="add">
+            <h3>Add New Menu Item</h3>
+
+            <form id="productForm">
+                <label>Product Name</label>
+                <input id="name" type="text"
+                       placeholder="Enter product name" required>
+
+                <label>Price</label>
+                <input id="price" type="number"
+                       placeholder="Enter price"
+                       min="0.01" step="0.01" required>
+
+                <label>Category</label>
+                <select id="category">
+                    <option>Grilled Meals</option>
+                    <option>Steak & Ribs</option>
+                    <option>Wings</option>
+                    <option>Burgers</option>
+                    <option>Sides</option>
+                    <option>Beverages</option>
+                </select>
+
+                <label>Description</label>
+                <textarea id="description"
+                          placeholder="Product description"
+                          required></textarea>
+
+                <label>Availability</label>
+                <select id="availability">
+                    <option>Available</option>
+                    <option>Unavailable</option>
+                </select>
+
+                <button class="add-btn" type="submit">
+                    Add Product
+                </button>
+            </form>
+        </section>
+
+        <section class="card" id="menu">
+            <h3>Menu Items</h3>
+
+            <div id="search">
+                <input id="searchInput"
+                       type="text"
+                       placeholder="Search menu items..."
+                       oninput="renderMenu()">
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Availability</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="menuTable"></tbody>
+            </table>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    let products = [
+        {
+            name: "Grilled Chicken",
+            category: "Grilled Meals",
+            price: 180,
+            description: "Tender grilled chicken",
+            availability: "Available"
+        },
+        {
+            name: "BBQ Ribs",
+            category: "Steak & Ribs",
+            price: 280,
+            description: "Barbecue pork ribs",
+            availability: "Available"
+        },
+        {
+            name: "Chicken Wings",
+            category: "Wings",
+            price: 220,
+            description: "Crispy chicken wings",
+            availability: "Available"
+        },
+        {
+            name: "Burger",
+            category: "Burgers",
+            price: 150,
+            description: "Classic burger",
+            availability: "Available"
+        },
+        {
+            name: "French Fries",
+            category: "Sides",
+            price: 100,
+            description: "Crispy french fries",
+            availability: "Available"
+        },
+        {
+            name: "Iced Tea",
+            category: "Beverages",
+            price: 80,
+            description: "Refreshing iced tea",
+            availability: "Available"
+        }
+    ];
+
+    function renderMenu() {
+        const table = document.getElementById("menuTable");
+        const search = document
+            .getElementById("searchInput")
+            .value.toLowerCase();
+
+        table.innerHTML = "";
+
+        products.forEach((product, index) => {
+            if (!product.name.toLowerCase().includes(search)) {
+                return;
+            }
+
+            table.innerHTML += `
+                <tr>
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>₱${product.price}</td>
+                    <td>${product.availability}</td>
+                    <td>
+                        <button class="edit-btn"
+                            onclick="editProduct(${index})">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                            onclick="deleteProduct(${index})">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    document.getElementById("productForm")
+        .addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const product = {
+                name: document.getElementById("name").value.trim(),
+                price: Number(document.getElementById("price").value),
+                category: document.getElementById("category").value,
+                description: document.getElementById("description").value.trim(),
+                availability: document.getElementById("availability").value
+            };
+
+            if (!product.name || !product.description ||
+                !Number.isFinite(product.price) || product.price <= 0) {
+                alert("Please enter valid product information.");
+                return;
+            }
+
+            products.push(product);
+            renderMenu();
+            this.reset();
+
+            alert("Product added successfully!");
+        });
+
+    function deleteProduct(index) {
+        if (confirm("Are you sure you want to delete this item?")) {
+            products.splice(index, 1);
+            renderMenu();
+        }
+    }
+
+    function editProduct(index) {
+        const product = products[index];
+
+        document.getElementById("name").value = product.name;
+        document.getElementById("price").value = product.price;
+        document.getElementById("category").value = product.category;
+        document.getElementById("description").value = product.description;
+        document.getElementById("availability").value = product.availability;
+
+        products.splice(index, 1);
+        renderMenu();
+
+        document.getElementById("add").scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+
+    renderMenu();
+</script>
+
+</body>
+</html>
